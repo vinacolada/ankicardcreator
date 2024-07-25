@@ -9,25 +9,31 @@ class CustomTextEdit(QTextEdit):
         self.setReadOnly(True) # Make the QTextEdit read-only when it loses focus
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            # Exit edit mode and make the QTextEdit read-only
-            self.setReadOnly(True)
-            # Optionally, move the focus back to the parent table
-            self.parent().setFocus()
-            event.accept()  # Mark the event as handled
-        elif self.isReadOnly():
+        if self.isReadOnly():
             if event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right):
                 # Pass the event to the parent (table) only if read-only
+                self.clearFocus()  # Remove focus from QTextEdit
                 self.parent().keyPressEvent(event)
-                event.accept()  # Mark the event as handled
+            elif event.key() == Qt.Key_Escape:
+                # Exit edit mode and make the QTextEdit read-only
+                self.setReadOnly(True)
+                self.clearFocus()  # Remove focus from QTextEdit
+                self.parent().setFocus()  # Move the focus back to the parent table
             else:
                 super().keyPressEvent(event)
         else:
             # Default behavior when editable
-            super().keyPressEvent(event)
+            if event.key() == Qt.Key_Escape:
+                # Exit edit mode and make the QTextEdit read-only
+                self.setReadOnly(True)
+                self.clearFocus()  # Remove focus from QTextEdit
+                self.parent().setFocus()  # Move the focus back to the parent table
+            else:
+                super().keyPressEvent(event)
 
 class CustomTableWidget(QTableWidget):
     def keyPressEvent(self, event):
+        # Handle the Enter key for editing mode separately
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
             current_row = self.currentRow()
             current_column = self.currentColumn()
@@ -37,26 +43,19 @@ class CustomTableWidget(QTableWidget):
                     text_edit_widget.setReadOnly(False) # Make the QTextEdit editable
                     text_edit_widget.setFocus() # Set focus to the QTextEdit
         else:
-            super().keyPressEvent(event)
+            current_row = self.currentRow()
+            current_column = self.currentColumn()
 
-        if event.isAccepted():
-            # If the event has already been handled, do nothing
-            return
-
-        key = event.key()
-        current_row = self.currentRow()
-        current_column = self.currentColumn()
-
-        if key == Qt.Key_Up and current_row > 0:
-            self.setCurrentCell(current_row - 1, current_column)
-        elif key == Qt.Key_Down and current_row < self.rowCount() - 1:
-            self.setCurrentCell(current_row + 1, current_column)
-        elif key == Qt.Key_Left and current_column > 0:
-            self.setCurrentCell(current_row, current_column - 1)
-        elif key == Qt.Key_Right and current_column < self.columnCount() - 1:
-            self.setCurrentCell(current_row, current_column + 1)
-        else:
-            super().keyPressEvent(event)
+            if event.key() == Qt.Key_Up and current_row > 0:
+                self.setCurrentCell(current_row - 1, current_column)
+            elif event.key() == Qt.Key_Down and current_row < self.rowCount() - 1:
+                self.setCurrentCell(current_row + 1, current_column)
+            elif event.key() == Qt.Key_Left and current_column > 0:
+                self.setCurrentCell(current_row, current_column - 1)
+            elif event.key() == Qt.Key_Right and current_column < self.columnCount() - 1:
+                self.setCurrentCell(current_row, current_column + 1)
+            else:
+                super().keyPressEvent(event)
 
 # Main GUI
 class ClozeTable(QMainWindow):
