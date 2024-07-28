@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
 from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtCore import Qt
 
@@ -12,7 +12,7 @@ class CustomTextEdit(QTextEdit):
         if self.isReadOnly():
             if event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right):
                 # Pass the event to the parent (table) only if read-only
-                self.clearFocus()  # Remove focus from QTextEdit
+                # self.clearFocus()  # Remove focus from QTextEdit # V: Removed to retain focus on the cells
                 self.parent().keyPressEvent(event)  # Let the parent handle the navigation
             elif event.key() == Qt.Key_Escape:
                 # Exit edit mode and make the QTextEdit read-only
@@ -37,14 +37,31 @@ class CustomTableWidget(QTableWidget):
         current_column = self.currentColumn()
 
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-            if current_column == 2:  # Index of Cloze column
+            if current_column == 2 or current_column == 4:  # Index of Cloze column and Back Exta
                 text_edit_widget = self.cellWidget(current_row, current_column)
                 if isinstance(text_edit_widget, CustomTextEdit):
                     text_edit_widget.setReadOnly(False)  # Make the QTextEdit editable
                     text_edit_widget.setFocus()  # Set focus to the QTextEdit
             event.accept()  # Prevent further processing
         else:
-            super().keyPressEvent(event)  # Handle other key events normally
+            current_row = self.currentRow()
+            current_column = self.currentColumn()
+            # Check if the event was ignored by a child widget
+            if not event.isAccepted():
+                # Handle arrow keys for navigation
+                if event.key() == Qt.Key_Up and current_row > 0:
+                    self.setCurrentCell(current_row - 1, current_column)
+                elif event.key() == Qt.Key_Down and current_row < self.rowCount() - 1:
+                    self.setCurrentCell(current_row + 1, current_column)
+                elif event.key() == Qt.Key_Left and current_column > 0:
+                    self.setCurrentCell(current_row, current_column - 1)
+                elif event.key() == Qt.Key_Right and current_column < self.columnCount() - 1:
+                    self.setCurrentCell(current_row, current_column + 1)
+                else:
+                    super().keyPressEvent(event)  # Handle other key events normally
+            else:
+                # If the event was accepted (handled by CustomTextEdit), do nothing
+                super().keyPressEvent(event)
 
 # Main GUI
 class ClozeTable(QMainWindow):
@@ -52,10 +69,22 @@ class ClozeTable(QMainWindow):
         super().__init__()
         self.initUI()
         self.cloze_counters = {} # Dictionary to keep track of cloze counters
+        self.nomenclature = "" # Initialize a nomenclature
+
+
+    def update_nomenclature(self, text):
+        self.nomenclature = text
+
+    def cloze_text_changed(self, row):
+        cloze_column_widget = self.table.cellWidget(row, 2)
+        cloze_text = cloze_column_widget.toPlainText()
+        if cloze_text.strip():  # Check if there's text in the cloze column
+            number = self.nomenclature + f"{row + 1:04d}"  # Format the number with leading zeros
+            self.table.setItem(row, 0, QTableWidgetItem(number))  # Update the "Number" column
 
     def initUI(self):
         self.setWindowTitle('Anki Cloze Creator')
-        self.setWindowIcon(QIcon('anki_ico.ico'))
+        self.setWindowIcon(QIcon('anki_ico.ico')) # V: Added an icon for the program. Paste of /dist when bundled by the installer.
         self.setGeometry(100, 100, 800, 600)
 
         # Create table
@@ -67,23 +96,41 @@ class ClozeTable(QMainWindow):
         self.table.resizeRowsToContents()
 
         # Allow users to resize columns manually
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Interactive)  # Enable manual resizing for all columns
 
-        # Set up the table headers
+        # Set up the table setHorizontalHeaderLabels
         headers = ['Number', 'Title', 'Cloze Column', 'Topic', 'Back Extra', 'Back Image']
         self.table.setHorizontalHeaderLabels(headers)
-
-        # Add a QTextEdit widget for the cloze column
-        for row in range(self.table.rowCount()):
-            text_edit_widget = CustomTextEdit(self)
-            text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height(row))
-            self.table.setCellWidget(row, 2, text_edit_widget)
-            # QTextEdit Read-Only
-            text_edit_widget.setReadOnly(True)
 
         # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.table)
+
+        # Add a line edit for the user to specify the nomenclature
+        self.nomenclature_input = QLineEdit(self)
+        self.nomenclature_input.setPlaceholderText("Enter number (e.g., 'FAR.CM.')")
+        layout.addWidget(self.nomenclature_input)
+
+        # Connect the line edit to a method to update the nomenclature
+        self.nomenclature_input.textChanged.connect(self.update_nomenclature)
+
+        # Add a QTextEdit widget for the cloze column
+        for row in range(self.table.rowCount()):
+            text_edit_widget = CustomTextEdit(self)
+            text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_cc(row)) # Update the row height
+            text_edit_widget.textChanged.connect(lambda row=row: self.cloze_text_changed(row)) # Check changes
+            self.table.setCellWidget(row, 2, text_edit_widget)
+            # QTextEdit Read-Only
+            text_edit_widget.setReadOnly(True)
+
+        # Add a QTextEdit widget for the Back Extra
+        for row in range(self.table.rowCount()):
+            text_edit_widget = CustomTextEdit(self)
+            text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_be(row))
+            self.table.setCellWidget(row, 4, text_edit_widget)
+            # QTextEdit Read-Only
+            text_edit_widget.setReadOnly(True)
 
         # Create a central widget and set the layout on it
         central_widget = QWidget(self)  # Create a central widget
@@ -107,8 +154,16 @@ class ClozeTable(QMainWindow):
         self.shortcut_same_number_cloze = QShortcut(QKeySequence('Ctrl+Shift+Alt+C'), self)
         self.shortcut_same_number_cloze.activated.connect(self.apply_same_number_cloze)
 
-    def update_row_height(self, row):
+    def update_row_height_cc(self, row):
         text_edit_widget = self.table.cellWidget(row, 2)
+        # Calculate the height and add some margin
+        height = text_edit_widget.document().size().height() + 10
+        # Round the height to the nearest int
+        rounded_height = int(round(height))
+        self.table.setRowHeight(row, rounded_height)
+
+    def update_row_height_be(self, row):
+        text_edit_widget = self.table.cellWidget(row, 4)
         # Calculate the height and add some margin
         height = text_edit_widget.document().size().height() + 10
         # Round the height to the nearest int
@@ -157,11 +212,11 @@ class ClozeTable(QMainWindow):
                     # Use the last counter used in current cell
                     cloze_counter = self.cloze_counters[cell_key]
                     selected_text = cursor.selectedText()
-                    cloze_text = f'{{{{c{cloze_counter - 1}::{selected_text}}}}}'
+                    cloze_text = f'{{{{c{cloze_counter}::{selected_text}}}}}' # V: Removed the -1 to keep up with the counter
                     cursor.insertText(cloze_text)
 
     def export_data(self):
-    # Open a file dialog to specify the path and file name for export
+        # Open a file dialog to specify the path and file name for export
         path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
         if not path:  # If no path is provided, return without doing anything
             return
@@ -169,6 +224,7 @@ class ClozeTable(QMainWindow):
         with open(path, 'w', encoding='utf-8') as file:
             for row in range(self.table.rowCount()):
                 row_data = []
+                row_is_empty = True  # Assume the row is empty until we find data
                 for column in range(self.table.columnCount()):
                     if column == 2:  # Cloze column with QTextEdit
                         text_edit_widget = self.table.cellWidget(row, column)
@@ -179,10 +235,13 @@ class ClozeTable(QMainWindow):
                         cell_item = self.table.item(row, column)
                         text = cell_item.text() if cell_item else ''
                     row_data.append(text)
-                # Write the tab-delimited row to the file
-                file.write('\t'.join(row_data) + '\n')
+                    if text.strip():  # If there's any text, mark the row as non-empty
+                        row_is_empty = False
+                # Write the tab-delimited row to the file only if the row is not empty
+                if not row_is_empty:
+                    file.write('\t'.join(row_data) + '\n')
 
-    # Show a message box that the data was exported successfully
+        # Show a message box that the data was exported successfully
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
 
 
