@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5.QtCore import Qt
 
 class CustomTextEdit(QTextEdit):
@@ -55,6 +55,7 @@ class ClozeTable(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Anki Cloze Creator')
+        self.setWindowIcon(QIcon('anki_ico.ico'))
         self.setGeometry(100, 100, 800, 600)
 
         # Create table
