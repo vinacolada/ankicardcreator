@@ -88,8 +88,8 @@ class ClozeTable(QMainWindow):
             self.table.setItem(row, 0, QTableWidgetItem(number))  # Update the "Number" column
 
     def initUI(self):
-        self.setWindowTitle('Anki Cloze Creator')
-        self.setWindowIcon(QIcon('anki_ico.ico')) # V: Added an icon for the program. Paste of /dist when bundled by the installer.
+        self.setWindowTitle('Anki Card Creator')
+        self.setWindowIcon(QIcon('ankiankicardcretor.ico')) # V: Added an icon for the program. Paste of /dist when bundled by the installer.
         self.setGeometry(100, 100, 800, 600)
 
         # Create table
@@ -252,8 +252,6 @@ class ClozeTable(QMainWindow):
 
         # Show a message box that the data was exported successfully
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
-
-
 
 def main():
     app = QApplication(sys.argv)
