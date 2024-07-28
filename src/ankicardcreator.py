@@ -70,16 +70,21 @@ class ClozeTable(QMainWindow):
         self.initUI()
         self.cloze_counters = {} # Dictionary to keep track of cloze counters
         self.nomenclature = "" # Initialize a nomenclature
+        self.offset = "" # V: Initialize offset
 
 
     def update_nomenclature(self, text):
         self.nomenclature = text
 
+    def update_offset(self, offset_number):
+        self.offset = offset_number
+
     def cloze_text_changed(self, row):
         cloze_column_widget = self.table.cellWidget(row, 2)
         cloze_text = cloze_column_widget.toPlainText()
         if cloze_text.strip():  # Check if there's text in the cloze column
-            number = self.nomenclature + f"{row + 1:04d}"  # Format the number with leading zeros
+            offset = int(self.offset) + 1
+            number = self.nomenclature + f"{row + offset:04d}"  # Format the number with leading zeros
             self.table.setItem(row, 0, QTableWidgetItem(number))  # Update the "Number" column
 
     def initUI(self):
@@ -109,11 +114,15 @@ class ClozeTable(QMainWindow):
 
         # Add a line edit for the user to specify the nomenclature
         self.nomenclature_input = QLineEdit(self)
-        self.nomenclature_input.setPlaceholderText("Enter number (e.g., 'FAR.CM.')")
+        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'FAR.CM.')")
+        self.offset_input = QLineEdit(self)
+        self.offset_input.setPlaceholderText("Enter number to offset starting")
+        layout.addWidget(self.offset_input)
         layout.addWidget(self.nomenclature_input)
 
         # Connect the line edit to a method to update the nomenclature
         self.nomenclature_input.textChanged.connect(self.update_nomenclature)
+        self.offset_input.textChanged.connect(self.update_offset)
 
         # Add a QTextEdit widget for the cloze column
         for row in range(self.table.rowCount()):
