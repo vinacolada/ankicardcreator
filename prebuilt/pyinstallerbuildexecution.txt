@@ -1,1 +1,1 @@
-pyinstaller --icon=anki_ico.ico -w ankicardcreator.py
+pyinstaller --icon=ankicardcreator.ico -w ankicardcreator.py
