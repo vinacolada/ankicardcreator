@@ -1,7 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
 from PyQt5.QtGui import QKeySequence, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QFile, QTextStream
+import stylesheets.breeze_resources
+
 
 class CustomTextEdit(QTextEdit):
     def focusOutEvent(self, event):
@@ -70,7 +72,7 @@ class ClozeTable(QMainWindow):
         self.initUI()
         self.cloze_counters = {} # Dictionary to keep track of cloze counters
         self.nomenclature = "" # Initialize a nomenclature
-        self.offset = "" # V: Initialize offset
+        self.offset = 0 # V: Initialize offset
 
 
     def update_nomenclature(self, text):
@@ -89,7 +91,7 @@ class ClozeTable(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Anki Card Creator')
-        self.setWindowIcon(QIcon('ankiankicardcretor.ico')) # V: Added an icon for the program. Paste of /dist when bundled by the installer.
+        self.setWindowIcon(QIcon('ankicardcreator.ico')) # V: Added an icon for the program. Paste to /dist when bundled by the installer.
         self.setGeometry(100, 100, 800, 600)
 
         # Create table
@@ -114,9 +116,9 @@ class ClozeTable(QMainWindow):
 
         # Add a line edit for the user to specify the nomenclature
         self.nomenclature_input = QLineEdit(self)
-        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'FAR.CM.')")
+        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'FAR.CM.'). Cannot be empty")
         self.offset_input = QLineEdit(self)
-        self.offset_input.setPlaceholderText("Enter number to offset starting")
+        self.offset_input.setPlaceholderText("Enter number to offset starting. Cannot be empty.")
         layout.addWidget(self.offset_input)
         layout.addWidget(self.nomenclature_input)
 
@@ -124,7 +126,7 @@ class ClozeTable(QMainWindow):
         self.nomenclature_input.textChanged.connect(self.update_nomenclature)
         self.offset_input.textChanged.connect(self.update_offset)
 
-        # Add a QTextEdit widget for the cloze column
+        # Add a QTextEdit widget for the cloze column V: and back extra
         for row in range(self.table.rowCount()):
             text_edit_widget = CustomTextEdit(self)
             text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_cc(row)) # Update the row height
@@ -152,16 +154,18 @@ class ClozeTable(QMainWindow):
         self.export_button.clicked.connect(self.export_data)
         layout.addWidget(self.export_button)
 
-        # Set the layout
-        #container = self.centralWidget()
-        #container.setLayout(layout)
-
         # Shortcuts
         self.shortcut_incremental_cloze = QShortcut(QKeySequence('Ctrl+Shift+C'), self)
         self.shortcut_incremental_cloze.activated.connect(self.apply_incremental_cloze)
 
         self.shortcut_same_number_cloze = QShortcut(QKeySequence('Ctrl+Shift+Alt+C'), self)
         self.shortcut_same_number_cloze.activated.connect(self.apply_same_number_cloze)
+
+        self.shortcut_bold = QShortcut(QKeySequence('Ctrl+B'), self)
+        self.shortcut_bold.activated.connect(self.apply_bold)
+
+        self.shortcut_underline = QShortcut(QKeySequence('Ctrl+U'), self)
+        self.shortcut_underline.activated.connect(self.apply_underline)
 
     def update_row_height_cc(self, row):
         text_edit_widget = self.table.cellWidget(row, 2)
@@ -178,6 +182,36 @@ class ClozeTable(QMainWindow):
         # Round the height to the nearest int
         rounded_height = int(round(height))
         self.table.setRowHeight(row, rounded_height)
+
+    def apply_bold(self):
+        # Get selected cell position
+        current_row = self.table.currentRow()
+        current_column = 2
+
+        # Get the QTextEdit widget in the specified cell
+        text_edit_widget = self.table.cellWidget(current_row, current_column)
+
+        if isinstance(text_edit_widget, QTextEdit):
+            cursor = text_edit_widget.textCursor()
+            if cursor.hasSelection():
+                selected_text = cursor.selectedText()
+                bold_text = f'<b>{selected_text}</b>' # V: Bold
+                cursor.insertText(bold_text)
+
+    def apply_underline(self):
+        # Get selected cell position
+        current_row = self.table.currentRow()
+        current_column = 2
+
+        # Get the QTextEdit widget in the specified cell
+        text_edit_widget = self.table.cellWidget(current_row, current_column)
+
+        if isinstance(text_edit_widget, QTextEdit):
+            cursor = text_edit_widget.textCursor()
+            if cursor.hasSelection():
+                selected_text = cursor.selectedText()
+                underline_text = f'<u>{selected_text}</u>' # V: Bold
+                cursor.insertText(underline_text)
 
     def apply_incremental_cloze(self):
         # Get the current selected row and column
@@ -253,8 +287,17 @@ class ClozeTable(QMainWindow):
         # Show a message box that the data was exported successfully
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
 
+
+
 def main():
     app = QApplication(sys.argv)
+
+    # V: Stylesheet
+    file = QFile(":/dark/stylesheet.qss")
+    file.open(QFile.ReadOnly | QFile.Text)
+    stream = QTextStream(file)
+    app.setStyleSheet(stream.readAll())
+
     main_window = ClozeTable()
     main_window.show()
     sys.exit(app.exec_())
