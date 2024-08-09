@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
-from PyQt5.QtGui import QKeySequence, QIcon
+from PyQt5.QtWidgets import QSplashScreen, QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
+from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QFile, QTextStream
 import stylesheets.breeze_resources
 
@@ -66,7 +66,7 @@ class CustomTableWidget(QTableWidget):
                 super().keyPressEvent(event)
 
 # Main GUI
-class ClozeTable(QMainWindow):
+class CardTable(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -269,7 +269,7 @@ class ClozeTable(QMainWindow):
                 row_data = []
                 row_is_empty = True  # Assume the row is empty until we find data
                 for column in range(self.table.columnCount()):
-                    if column == 2:  # Cloze column with QTextEdit
+                    if column == 2 or column == 4:  # Cloze column with QTextEdit
                         text_edit_widget = self.table.cellWidget(row, column)
                         text = text_edit_widget.toPlainText()
                         # Replace line breaks with a placeholder
@@ -292,13 +292,22 @@ class ClozeTable(QMainWindow):
 def main():
     app = QApplication(sys.argv)
 
+    # Splash Screen
+    splash_pix = QPixmap('ankicardcreator-splash.png')
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    splash.show()
+    app.processEvents()
+
+    # Main window initialization
+    main_window = CardTable()
+
     # V: Stylesheet
     file = QFile(":/dark/stylesheet.qss")
     file.open(QFile.ReadOnly | QFile.Text)
     stream = QTextStream(file)
     app.setStyleSheet(stream.readAll())
 
-    main_window = ClozeTable()
+    splash.finish(main_window)
     main_window.show()
     sys.exit(app.exec_())
 
