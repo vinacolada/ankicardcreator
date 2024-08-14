@@ -107,7 +107,7 @@ class CardTable(QMainWindow):
         header.setSectionResizeMode(QHeaderView.Interactive)  # Enable manual resizing for all columns
 
         # Set up the table setHorizontalHeaderLabels
-        headers = ['Number', 'Title', 'Cloze Column', 'Topic', 'Back Extra', 'Back Image']
+        headers = ['ID', 'Topic', 'Text', 'Subject', 'Extra Notes', 'Tags(Leave Blank)']
         self.table.setHorizontalHeaderLabels(headers)
 
         # Layout
@@ -116,9 +116,9 @@ class CardTable(QMainWindow):
 
         # Add a line edit for the user to specify the nomenclature
         self.nomenclature_input = QLineEdit(self)
-        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'FAR.CM.'). Cannot be empty")
+        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'SUBJECT.LESSON.'). Cannot be empty.")
         self.offset_input = QLineEdit(self)
-        self.offset_input.setPlaceholderText("Enter number to offset starting. Cannot be empty.")
+        self.offset_input.setPlaceholderText("Enter number to offset starting point if you already have notes on the deck. This is to avoid duplication. Cannot be empty.")
         layout.addWidget(self.offset_input)
         layout.addWidget(self.nomenclature_input)
 
