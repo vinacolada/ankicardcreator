@@ -14,75 +14,179 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="addNotesButton">
+   <widget class="QSplitter" name="column1Splitter">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>240</y>
-      <width>50</width>
-      <height>50</height>
+      <x>10</x>
+      <y>20</y>
+      <width>276</width>
+      <height>481</height>
      </rect>
     </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-      <horstretch>50</horstretch>
-      <verstretch>50</verstretch>
-     </sizepolicy>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QGroupBox" name="tableGroupBox">
+     <property name="title">
+      <string>Questions</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QTableWidget" name="questionsTableWidget">
+        <property name="rowCount">
+         <number>1</number>
+        </property>
+        <property name="columnCount">
+         <number>2</number>
+        </property>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>75</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <row/>
+        <column/>
+        <column/>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="addQPushButton">
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLineEdit" name="numIDLineEdit">
+        <property name="placeholderText">
+         <string>Numerical Identifier</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sortLineEdit">
+        <property name="placeholderText">
+         <string>Sort Identifier</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="column2Splitter">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>20</y>
+      <width>361</width>
+      <height>401</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QGroupBox" name="titleGroupBox">
+     <property name="title">
+      <string>Title</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="titleTextEdit"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="notesGroupBox">
+     <property name="title">
+      <string>Notes</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="notesTextEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="column3Splitter">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>20</y>
+      <width>151</width>
+      <height>400</height>
+     </rect>
     </property>
     <property name="maximumSize">
      <size>
-      <width>50</width>
-      <height>50</height>
+      <width>16777215</width>
+      <height>16777215</height>
      </size>
     </property>
-    <property name="text">
-     <string>Add</string>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
     </property>
-   </widget>
-   <widget class="QScrollArea" name="scrollArea">
-    <property name="geometry">
-     <rect>
-      <x>669</x>
-      <y>20</y>
-      <width>141</width>
-      <height>211</height>
-     </rect>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>139</width>
-       <height>209</height>
-      </rect>
+    <widget class="QGroupBox" name="allNotesGroupBox">
+     <property name="title">
+      <string>All Notes</string>
      </property>
-     <widget class="QScrollBar" name="verticalScrollBar">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>-1</y>
-        <width>20</width>
-        <height>211</height>
-       </rect>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
-     <widget class="QListView" name="listView">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>121</width>
-        <height>211</height>
-       </rect>
-      </property>
-     </widget>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QScrollArea" name="allNotesScrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="allNotesScrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>129</width>
+           <height>129</height>
+          </rect>
+         </property>
+         <widget class="QListView" name="allNoteListView">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>141</width>
+            <height>211</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="addNotesButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>50</horstretch>
+       <verstretch>50</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>50</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="topicGroupBox">
+     <property name="title">
+      <string>Topic</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="topicTextEdit"/>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>
