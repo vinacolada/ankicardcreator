@@ -4,4 +4,4 @@ This is a program built using Python (The only programming language I have inter
 
 If you ever found this repository, please do say hi. Ask me anything about this program. Maybe we can collaborate to make this customizable and open for everyone using Anki.
 
-Before I forget, this program is for making cards in bulk with the goal of importing it easily in Anki. It's layout looks like "that" famous spreadsheet program but this one is customized to have a Cloze shortcut.
+Before I forget, this program is for making cards in bulk with the goal of importing it easily in Anki. Its layout looks like "that" famous spreadsheet program but this one is customized to have a Cloze shortcut.
