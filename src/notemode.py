@@ -14,91 +14,46 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(835, 586)
+        MainWindow.resize(1000, 500)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.column1Splitter = QtWidgets.QSplitter(self.centralwidget)
-        self.column1Splitter.setGeometry(QtCore.QRect(10, 20, 276, 481))
-        self.column1Splitter.setOrientation(QtCore.Qt.Vertical)
-        self.column1Splitter.setObjectName("column1Splitter")
-        self.tableGroupBox = QtWidgets.QGroupBox(self.column1Splitter)
-        self.tableGroupBox.setObjectName("tableGroupBox")
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.tableGroupBox)
-        self.gridLayout_4.setObjectName("gridLayout_4")
-        self.questionsTableWidget = QtWidgets.QTableWidget(self.tableGroupBox)
-        self.questionsTableWidget.setRowCount(1)
-        self.questionsTableWidget.setColumnCount(2)
-        self.questionsTableWidget.setObjectName("questionsTableWidget")
-        self.questionsTableWidget.horizontalHeader().setDefaultSectionSize(75)
-        self.questionsTableWidget.horizontalHeader().setStretchLastSection(True)
-        self.gridLayout_4.addWidget(self.questionsTableWidget, 0, 0, 1, 1)
-        self.addQPushButton = QtWidgets.QPushButton(self.column1Splitter)
-        self.addQPushButton.setObjectName("addQPushButton")
-        self.widget = QtWidgets.QWidget(self.column1Splitter)
-        self.widget.setObjectName("widget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.numIDLineEdit = QtWidgets.QLineEdit(self.widget)
-        self.numIDLineEdit.setObjectName("numIDLineEdit")
-        self.verticalLayout.addWidget(self.numIDLineEdit)
-        self.sortLineEdit = QtWidgets.QLineEdit(self.widget)
-        self.sortLineEdit.setObjectName("sortLineEdit")
-        self.verticalLayout.addWidget(self.sortLineEdit)
-        self.column2Splitter = QtWidgets.QSplitter(self.centralwidget)
-        self.column2Splitter.setGeometry(QtCore.QRect(300, 20, 361, 401))
-        self.column2Splitter.setOrientation(QtCore.Qt.Vertical)
-        self.column2Splitter.setObjectName("column2Splitter")
-        self.titleGroupBox = QtWidgets.QGroupBox(self.column2Splitter)
-        self.titleGroupBox.setObjectName("titleGroupBox")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.titleGroupBox)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.titleTextEdit = QtWidgets.QTextEdit(self.titleGroupBox)
-        self.titleTextEdit.setObjectName("titleTextEdit")
-        self.gridLayout_3.addWidget(self.titleTextEdit, 0, 0, 1, 1)
-        self.notesGroupBox = QtWidgets.QGroupBox(self.column2Splitter)
-        self.notesGroupBox.setObjectName("notesGroupBox")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.notesGroupBox)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.notesTextEdit = QtWidgets.QTextEdit(self.notesGroupBox)
-        self.notesTextEdit.setObjectName("notesTextEdit")
-        self.gridLayout_2.addWidget(self.notesTextEdit, 0, 0, 1, 1)
-        self.column3Splitter = QtWidgets.QSplitter(self.centralwidget)
-        self.column3Splitter.setGeometry(QtCore.QRect(670, 20, 151, 400))
-        self.column3Splitter.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.column3Splitter.setOrientation(QtCore.Qt.Vertical)
-        self.column3Splitter.setObjectName("column3Splitter")
-        self.allNotesGroupBox = QtWidgets.QGroupBox(self.column3Splitter)
-        self.allNotesGroupBox.setObjectName("allNotesGroupBox")
-        self.gridLayout = QtWidgets.QGridLayout(self.allNotesGroupBox)
-        self.gridLayout.setObjectName("gridLayout")
-        self.allNotesScrollArea = QtWidgets.QScrollArea(self.allNotesGroupBox)
-        self.allNotesScrollArea.setWidgetResizable(True)
-        self.allNotesScrollArea.setObjectName("allNotesScrollArea")
-        self.allNotesScrollAreaWidgetContents = QtWidgets.QWidget()
-        self.allNotesScrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 129, 129))
-        self.allNotesScrollAreaWidgetContents.setObjectName("allNotesScrollAreaWidgetContents")
-        self.allNoteListView = QtWidgets.QListView(self.allNotesScrollAreaWidgetContents)
-        self.allNoteListView.setGeometry(QtCore.QRect(0, 0, 141, 211))
-        self.allNoteListView.setObjectName("allNoteListView")
-        self.allNotesScrollArea.setWidget(self.allNotesScrollAreaWidgetContents)
-        self.gridLayout.addWidget(self.allNotesScrollArea, 0, 0, 1, 1)
-        self.addNotesButton = QtWidgets.QPushButton(self.column3Splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(50)
-        sizePolicy.setVerticalStretch(50)
-        sizePolicy.setHeightForWidth(self.addNotesButton.sizePolicy().hasHeightForWidth())
-        self.addNotesButton.setSizePolicy(sizePolicy)
-        self.addNotesButton.setMaximumSize(QtCore.QSize(50, 50))
-        self.addNotesButton.setObjectName("addNotesButton")
-        self.topicGroupBox = QtWidgets.QGroupBox(self.column3Splitter)
-        self.topicGroupBox.setObjectName("topicGroupBox")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.topicGroupBox)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.topicTextEdit = QtWidgets.QTextEdit(self.topicGroupBox)
-        self.topicTextEdit.setObjectName("topicTextEdit")
-        self.gridLayout_5.addWidget(self.topicTextEdit, 0, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
+
+        # Create the main horizontal layout
+        self.mainSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal, self.centralwidget)
+
+        # Create the vertical splitters without setting geometry
+        self.column1Splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        self.column2Splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        self.column3Splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+
+        # Add the columns to the main splitter
+        self.setupFirstColumn()
+        self.setupSecondColumn()
+        self.setupThirdColumn()
+
+        # Set up the menu bar before calling retranslateUi
+        self.setupMenuBar(MainWindow)
+
+        # Add the columns to the main splitter
+        self.mainSplitter.addWidget(self.column1Splitter)
+        self.mainSplitter.addWidget(self.column2Splitter)
+        self.mainSplitter.addWidget(self.column3Splitter)
+
+        # Set the initial sizes of the columns based on the proportions
+        totalWidth = MainWindow.size().width()
+        self.mainSplitter.setSizes([totalWidth*2//6, totalWidth*3//6, totalWidth*1//6])
+
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        # Connect widgets here
+        self.addNotesButton.clicked.connect(self.add_note)
+
+        MainWindow.setCentralWidget(self.mainSplitter)
+
+    def setupMenuBar(self, MainWindow):
+        # Set up the menu bar here
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 835, 21))
         self.menubar.setObjectName("menubar")
@@ -149,8 +104,69 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuNote.menuAction())
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+    def setupFirstColumn(self):
+        # Set up the first column with a table and add button
+        self.tableGroupBox = QtWidgets.QGroupBox("Questions")
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.tableGroupBox)
+        self.questionsTableWidget = QtWidgets.QTableWidget(1, 2)
+        self.questionsTableWidget.horizontalHeader().setDefaultSectionSize(75)
+        self.questionsTableWidget.horizontalHeader().setStretchLastSection(True)
+        self.gridLayout_4.addWidget(self.questionsTableWidget, 0, 0, 1, 1)
+        self.addQPushButton = QtWidgets.QPushButton("+")
+        self.column1Splitter.addWidget(self.tableGroupBox)
+        self.column1Splitter.addWidget(self.addQPushButton)
+        
+        # Create a new widget with a vertical layout for the line edits
+        self.widget = QtWidgets.QWidget()
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
+        self.numIDLineEdit = QtWidgets.QLineEdit()
+        self.numIDLineEdit.setPlaceholderText("Numerical Identifier")
+        self.verticalLayout.addWidget(self.numIDLineEdit)
+        self.sortLineEdit = QtWidgets.QLineEdit()
+        self.sortLineEdit.setPlaceholderText("Sort Identifier")
+        self.verticalLayout.addWidget(self.sortLineEdit)
+        # Add the widget to the splitter
+        self.column1Splitter.addWidget(self.widget)
+
+    def setupSecondColumn(self):
+        # Set up the second column with title and notes text edits
+        self.titleGroupBox = QtWidgets.QGroupBox("Title")
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.titleGroupBox)
+        self.titleTextEdit = QtWidgets.QTextEdit()
+        self.gridLayout_3.addWidget(self.titleTextEdit, 0, 0, 1, 1)
+        self.notesGroupBox = QtWidgets.QGroupBox("Notes")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.notesGroupBox)
+        self.notesTextEdit = QtWidgets.QTextEdit()
+        self.gridLayout_2.addWidget(self.notesTextEdit, 0, 0, 1, 1)
+        self.column2Splitter.addWidget(self.titleGroupBox)
+        self.column2Splitter.addWidget(self.notesGroupBox)
+
+    def setupThirdColumn(self):
+        # Set up the third column with all notes list view, add notes button, and topic text edit
+        self.allNotesGroupBox = QtWidgets.QGroupBox("All Notes")
+        self.gridLayout = QtWidgets.QGridLayout(self.allNotesGroupBox)
+        self.allNotesScrollArea = QtWidgets.QScrollArea()
+        self.allNotesScrollArea.setWidgetResizable(True)
+        self.allNotesScrollAreaWidgetContents = QtWidgets.QWidget()
+        self.allNotesScrollArea.setWidget(self.allNotesScrollAreaWidgetContents)
+        
+        # Create the list view and add it to the scroll area's widget contents layout
+        self.allNoteListView = QtWidgets.QListView(self.allNotesScrollAreaWidgetContents)
+        layout = QtWidgets.QVBoxLayout(self.allNotesScrollAreaWidgetContents)
+        layout.addWidget(self.allNoteListView)
+        
+        self.gridLayout.addWidget(self.allNotesScrollArea, 0, 0, 1, 1)
+        self.addNotesButton = QtWidgets.QPushButton("Add")
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.addNotesButton.setSizePolicy(sizePolicy)
+        
+        self.topicGroupBox = QtWidgets.QGroupBox("Topic")
+        self.gridLayout_5 = QtWidgets.QGridLayout(self.topicGroupBox)
+        self.topicTextEdit = QtWidgets.QTextEdit()
+        self.gridLayout_5.addWidget(self.topicTextEdit, 0, 0, 1, 1)
+        self.column3Splitter.addWidget(self.allNotesGroupBox)   
+        self.column3Splitter.addWidget(self.addNotesButton)
+        self.column3Splitter.addWidget(self.topicGroupBox)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -179,6 +195,16 @@ class Ui_MainWindow(object):
         self.actionAdd_Note.setText(_translate("MainWindow", "Add Note"))
         self.actionAdd_Note.setShortcut(_translate("MainWindow", "Ctrl+M"))
         self.actionAdd_Card.setText(_translate("MainWindow", "Add Card"))
+
+    # V: Add features here
+    def add_note(self):
+        model = self.allNoteListView.model()
+        if model is None:
+            model = QtGui.QStandardItemModel(self.allNoteListView)
+
+        item = QtGui.QStandardItem("New Note")
+        model.appendRow(item)
+        self.allNoteListView.setModel(model)
 
 
 if __name__ == "__main__":
