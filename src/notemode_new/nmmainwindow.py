@@ -1,4 +1,5 @@
 from ui_NoteMode import *
+from nmcustomtextedit import *
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -30,7 +31,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.titleTextEdit.textChanged.connect(self.update_note_title)
 
         # Modify the table setup in the first column of the splitter
-        self.setupFirstColumn()
+        # self.setupFirstColumn()
+
+        for row in range(self.table.rowCount()):
+            text_edit_widget = CustomTextEdit(self)
+            # text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_cc(row)) # Update the row height
+            text_edit_widget.textChanged.connect(lambda row=row: self.cloze_text_changed(row)) # Check changes
+            self.table.setCellWidget(row, 2, text_edit_widget)
+            # QTextEdit Read-Only
+            text_edit_widget.setReadOnly(True)
+
+    def cloze_text_changed(self, row):
+        column_index = self.table.columnCount() - 1
+        cloze_column_widget = self.table.cellWidget(row, column_index)
+        cloze_text = cloze_column_widget.toPlainText()
+        if cloze_text.strip():  # Check if there's text in the cloze column
+            offset = int(self.offset) + 1
+            number = self.nomenclature + f"{row + offset:04d}"  # Format the number with leading zeros
+            self.quesTableWidget.setItem(row, 0, QTableWidgetItem(number))  # Update the "Number" column
+
 
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.FocusOut and source in [self.titleTextEdit, self.notesTextEdit, self.topicTextEdit]:
