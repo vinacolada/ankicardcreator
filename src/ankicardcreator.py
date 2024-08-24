@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QSplashScreen, QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QInputDialog, QSplashScreen, QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QFile, QTextStream
 import stylesheets.breeze_resources
@@ -39,7 +39,8 @@ class CustomTableWidget(QTableWidget):
         current_column = self.currentColumn()
 
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-            if current_column == 2 or current_column == 4:  # Index of Cloze column and Back Exta
+            column_index = self.columnCount() - 1
+            if current_column == column_index:  # Index of Cloze column and Back Exta
                 text_edit_widget = self.cellWidget(current_row, current_column)
                 if isinstance(text_edit_widget, CustomTextEdit):
                     text_edit_widget.setReadOnly(False)  # Make the QTextEdit editable
@@ -65,6 +66,29 @@ class CustomTableWidget(QTableWidget):
                 # If the event was accepted (handled by CustomTextEdit), do nothing
                 super().keyPressEvent(event)
 
+class EditableHeaderView(QHeaderView):
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+        self.setSectionsClickable(True)
+        self.sectionDoubleClicked.connect(self.on_sectionDoubleClicked)
+
+    def on_sectionDoubleClicked(self, index):
+        # Create a QLineEdit to edit the header
+        self.editor = QLineEdit(self)
+        header_text = self.model().headerData(index, self.orientation(), Qt.DisplayRole)
+        self.editor.setText(header_text)
+        self.editor.setGeometry(self.sectionViewportPosition(index), 0, self.sectionSize(index), self.height())
+        self.editor.setFocus()
+        self.editor.show()
+        self.editor.selectAll()
+        self.editor.editingFinished.connect(lambda: self.on_editingFinished(index))
+
+    def on_editingFinished(self, index):
+        # Update the header with the new text and remove the QLineEdit
+        new_header = self.editor.text()
+        self.model().setHeaderData(index, self.orientation(), new_header, Qt.EditRole)
+        self.editor.deleteLater()
+
 # Main GUI
 class CardTable(QMainWindow):
     def __init__(self):
@@ -74,6 +98,7 @@ class CardTable(QMainWindow):
         self.nomenclature = "" # Initialize a nomenclature
         self.offset = 0 # V: Initialize offset
 
+        self.table.setHorizontalHeader(EditableHeaderView(Qt.Horizontal, self.table))
 
     def update_nomenclature(self, text):
         self.nomenclature = text
@@ -82,7 +107,8 @@ class CardTable(QMainWindow):
         self.offset = offset_number
 
     def cloze_text_changed(self, row):
-        cloze_column_widget = self.table.cellWidget(row, 2)
+        column_index = self.table.columnCount() - 1
+        cloze_column_widget = self.table.cellWidget(row, column_index)
         cloze_text = cloze_column_widget.toPlainText()
         if cloze_text.strip():  # Check if there's text in the cloze column
             offset = int(self.offset) + 1
@@ -92,12 +118,12 @@ class CardTable(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Anki Card Creator')
         self.setWindowIcon(QIcon('ankicardcreator.ico')) # V: Added an icon for the program. Paste to /dist when bundled by the installer.
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 600)
 
         # Create table
         self.table = CustomTableWidget(self)
         self.table.setRowCount(500)  # Set this to the number of rows you want
-        self.table.setColumnCount(6)  # We have 6 columns
+        self.table.setColumnCount(1)  # V: We set the initial column to 1
         
         # Adjust rows widths to fit content
         self.table.resizeRowsToContents()
@@ -107,7 +133,7 @@ class CardTable(QMainWindow):
         header.setSectionResizeMode(QHeaderView.Interactive)  # Enable manual resizing for all columns
 
         # Set up the table setHorizontalHeaderLabels
-        headers = ['Number', 'Title', 'Cloze Column', 'Topic', 'Back Extra', 'Back Image']
+        headers = ['Sort Column']
         self.table.setHorizontalHeaderLabels(headers)
 
         # Layout
@@ -116,9 +142,9 @@ class CardTable(QMainWindow):
 
         # Add a line edit for the user to specify the nomenclature
         self.nomenclature_input = QLineEdit(self)
-        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'FAR.CM.'). Cannot be empty")
+        self.nomenclature_input.setPlaceholderText("Enter identifier (e.g., 'SUBJECT.LESSON.'). Cannot be empty.")
         self.offset_input = QLineEdit(self)
-        self.offset_input.setPlaceholderText("Enter number to offset starting. Cannot be empty.")
+        self.offset_input.setPlaceholderText("Enter number to offset starting point if you already have notes on the deck. This is to avoid duplication. Cannot be empty.")
         layout.addWidget(self.offset_input)
         layout.addWidget(self.nomenclature_input)
 
@@ -126,22 +152,7 @@ class CardTable(QMainWindow):
         self.nomenclature_input.textChanged.connect(self.update_nomenclature)
         self.offset_input.textChanged.connect(self.update_offset)
 
-        # Add a QTextEdit widget for the cloze column V: and back extra
-        for row in range(self.table.rowCount()):
-            text_edit_widget = CustomTextEdit(self)
-            text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_cc(row)) # Update the row height
-            text_edit_widget.textChanged.connect(lambda row=row: self.cloze_text_changed(row)) # Check changes
-            self.table.setCellWidget(row, 2, text_edit_widget)
-            # QTextEdit Read-Only
-            text_edit_widget.setReadOnly(True)
-
-        # Add a QTextEdit widget for the Back Extra
-        for row in range(self.table.rowCount()):
-            text_edit_widget = CustomTextEdit(self)
-            text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_be(row))
-            self.table.setCellWidget(row, 4, text_edit_widget)
-            # QTextEdit Read-Only
-            text_edit_widget.setReadOnly(True)
+        # V: Placeholder this is where we add the custom cloze columns before using the for loop
 
         # Create a central widget and set the layout on it
         central_widget = QWidget(self)  # Create a central widget
@@ -167,29 +178,39 @@ class CardTable(QMainWindow):
         self.shortcut_underline = QShortcut(QKeySequence('Ctrl+U'), self)
         self.shortcut_underline.activated.connect(self.apply_underline)
 
+        # Add buttons for adding and removing columns
+        self.add_column_button = QPushButton('Add Column', self)
+        self.add_column_button.clicked.connect(self.add_column)
+        layout.addWidget(self.add_column_button)
+
+        self.remove_column_button = QPushButton('Remove Column', self)
+        self.remove_column_button.clicked.connect(self.remove_column)
+        layout.addWidget(self.remove_column_button)
+
     def update_row_height_cc(self, row):
-        text_edit_widget = self.table.cellWidget(row, 2)
+        column_index = self.table.columnCount() - 1
+        text_edit_widget = self.table.cellWidget(row, column_index)
         # Calculate the height and add some margin
         height = text_edit_widget.document().size().height() + 10
         # Round the height to the nearest int
         rounded_height = int(round(height))
         self.table.setRowHeight(row, rounded_height)
 
-    def update_row_height_be(self, row):
-        text_edit_widget = self.table.cellWidget(row, 4)
-        # Calculate the height and add some margin
-        height = text_edit_widget.document().size().height() + 10
-        # Round the height to the nearest int
-        rounded_height = int(round(height))
-        self.table.setRowHeight(row, rounded_height)
+    # def update_row_height_be(self, row):
+    #     text_edit_widget = self.table.cellWidget(row, 4)
+    #     # Calculate the height and add some margin
+    #     height = text_edit_widget.document().size().height() + 10
+    #     # Round the height to the nearest int
+    #     rounded_height = int(round(height))
+    #     self.table.setRowHeight(row, rounded_height)
 
     def apply_bold(self):
         # Get selected cell position
         current_row = self.table.currentRow()
-        current_column = 2
+        column_index = self.table.columnCount() - 1
 
         # Get the QTextEdit widget in the specified cell
-        text_edit_widget = self.table.cellWidget(current_row, current_column)
+        text_edit_widget = self.table.cellWidget(current_row, column_index)
 
         if isinstance(text_edit_widget, QTextEdit):
             cursor = text_edit_widget.textCursor()
@@ -201,10 +222,10 @@ class CardTable(QMainWindow):
     def apply_underline(self):
         # Get selected cell position
         current_row = self.table.currentRow()
-        current_column = 2
+        column_index = self.table.columnCount() - 1
 
         # Get the QTextEdit widget in the specified cell
-        text_edit_widget = self.table.cellWidget(current_row, current_column)
+        text_edit_widget = self.table.cellWidget(current_row, column_index)
 
         if isinstance(text_edit_widget, QTextEdit):
             cursor = text_edit_widget.textCursor()
@@ -216,10 +237,10 @@ class CardTable(QMainWindow):
     def apply_incremental_cloze(self):
         # Get the current selected row and column
         current_row = self.table.currentRow()
-        current_column = 2  # Assuming cloze column is always column index 2
+        column_index = self.table.columnCount() - 1  # Assuming cloze column is always column index 2
         
         # Get the QTextEdit widget in the specified cell
-        text_edit_widget = self.table.cellWidget(current_row, current_column)
+        text_edit_widget = self.table.cellWidget(current_row, column_index)
         
         if isinstance(text_edit_widget, QTextEdit):
             cursor = text_edit_widget.textCursor()
@@ -227,7 +248,7 @@ class CardTable(QMainWindow):
                 selected_text = cursor.selectedText()
 
                 # Check if the cell already has a cloze counter
-                cell_key = (current_row, current_column)
+                cell_key = (current_row, column_index)
                 if cell_key not in self.cloze_counters:
                     self.cloze_counters[cell_key] = 1
                 else:
@@ -242,15 +263,15 @@ class CardTable(QMainWindow):
     def apply_same_number_cloze(self):
         # Get the current selected row and column
         current_row = self.table.currentRow()
-        current_column = 2  # Assuming cloze column is always column index 2
+        column_index = self.table.columnCount() - 1 # Assuming cloze column is always column index 2
         
         # Get the QTextEdit widget in the specified cell
-        text_edit_widget = self.table.cellWidget(current_row, current_column)
+        text_edit_widget = self.table.cellWidget(current_row, column_index)
         
         if isinstance(text_edit_widget, QTextEdit):
             cursor = text_edit_widget.textCursor()
             if cursor.hasSelection():
-                cell_key = (current_row, current_column)
+                cell_key = (current_row, column_index)
                 if cell_key in self.cloze_counters:
                     # Use the last counter used in current cell
                     cloze_counter = self.cloze_counters[cell_key]
@@ -269,7 +290,8 @@ class CardTable(QMainWindow):
                 row_data = []
                 row_is_empty = True  # Assume the row is empty until we find data
                 for column in range(self.table.columnCount()):
-                    if column == 2 or column == 4:  # Cloze column with QTextEdit
+                    column_index = self.table.columnCount() - 1
+                    if column_index:  # V: Custom columns should be stripped
                         text_edit_widget = self.table.cellWidget(row, column)
                         text = text_edit_widget.toPlainText()
                         # Replace line breaks with a placeholder
@@ -286,6 +308,32 @@ class CardTable(QMainWindow):
 
         # Show a message box that the data was exported successfully
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
+
+    def add_column(self):
+        # Prompt the user for the type of column to add
+        column_type, ok = QInputDialog.getItem(self, "Select Column Type", "Column Type:", ["Regular", "CustomTextEdit"], 0, False)
+        if ok and column_type:
+            column_count = self.table.columnCount()
+            self.table.insertColumn(column_count)
+            header_name = f"Column {column_count + 1}"
+            self.table.setHorizontalHeaderItem(column_count, QTableWidgetItem(header_name))
+            
+            if column_type == "CustomTextEdit":
+                # Add CustomTextEdit widgets to the new column #V: Originally from the for loop to make Cloze Column
+                for row in range(self.table.rowCount()):
+                    text_edit_widget = CustomTextEdit(self)
+                    text_edit_widget.textChanged.connect(lambda row=row: self.update_row_height_cc(row)) # Update the row height
+                    text_edit_widget.textChanged.connect(lambda row=row: self.cloze_text_changed(row)) # Check changes
+                    self.table.setCellWidget(row, column_count, text_edit_widget)
+                    # QTextEdit Read-Only
+                    text_edit_widget.setReadOnly(True)
+
+    def remove_column(self):
+        current_column = self.table.currentColumn()
+        if current_column != -1:  # Check if a column is selected
+            reply = QMessageBox.question(self, 'Remove Column', 'Are you sure you want to remove this column?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.table.removeColumn(current_column)
 
 
 
