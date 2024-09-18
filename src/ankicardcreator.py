@@ -1,7 +1,9 @@
 import sys
+import pathlib
+# import json
 from PyQt5.QtWidgets import QSplashScreen, QLineEdit, QHeaderView, QWidget, QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QPushButton, QShortcut, QFileDialog, QMessageBox
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
-from PyQt5.QtCore import Qt, QFile, QTextStream
+from PyQt5.QtCore import Qt, QFile, QTextStream, QTimer
 import stylesheets.breeze_resources
 
 
@@ -74,6 +76,9 @@ class CardTable(QMainWindow):
         self.nomenclature = "" # Initialize a nomenclature
         self.offset = 0 # V: Initialize offset
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.auto_export_data)
+        self.timer.start(1000*300)
 
     def update_nomenclature(self, text):
         self.nomenclature = text
@@ -258,6 +263,44 @@ class CardTable(QMainWindow):
                     cloze_text = f'{{{{c{cloze_counter}::{selected_text}}}}}' # V: Removed the -1 to keep up with the counter
                     cursor.insertText(cloze_text)
 
+    # def save(self):
+    #     # Prepare data for JSON serialization
+    #     for row in range(self.table.rowCount()):    
+    #         data = []
+    #         row_is_empty = True  # Assume the row is empty until we find data
+    #         for column in range(self.table.columnCount()):
+    #             if column == 2 or column == 4:  # Cloze column with QTextEdit
+    #                 text_edit_widget = self.table.cellWidget(row, column)
+    #                 text = text_edit_widget.toPlainText()
+    #                 # Replace line breaks with a placeholder
+    #                 text = text.replace('\n', '<br>')
+    #             else:  # Other columns with QTableWidgetItem
+    #                 cell_item = self.table.item(row, column)
+    #                 text = cell_item.text() if cell_item else ''
+    #             data.append(text)
+    #             if text.strip():  # If there's any text, mark the row as non-empty
+    #                 row_is_empty = False
+    #                     # Write JSON data to file
+    #         with open('notes.json', 'w') as file:
+    #            json.dump(data, file, indent=4)
+
+    # def load_notes_from_file(self):
+    #     try:
+    #         with open('notes.json', 'r') as file:
+    #             data = json.load(file)
+    #         for note_data in data:
+    #             note = {
+    #                 'id': note_data['id'],
+    #                 'title': note_data['title'],
+    #                 'content': note_data['content'],
+    #                 'topic': note_data['topic']
+    #             }
+    #             self.notes.append(note)
+    #             self.model.appendRow(QtGui.QStandardItem(note['title']))
+    #         self.next_note_id = max(note['id'] for note in self.notes) + 1
+    #     except (FileNotFoundError, json.JSONDecodeError):
+    #         pass  # File not found or JSON decode error, start with an empty notes list
+
     def export_data(self):
         # Open a file dialog to specify the path and file name for export
         path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
@@ -287,7 +330,35 @@ class CardTable(QMainWindow):
         # Show a message box that the data was exported successfully
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
 
+    def auto_export_data(self):
+        # Open a file dialog to specify the path and file name for export
+        aedir = "autoexport/data.txt"
+        path = pathlib.Path(__file__).parent / aedir
+        if not path:  # If no path is provided, return without doing anything
+            return
 
+        with open(path, 'w', encoding='utf-8') as file:
+            for row in range(self.table.rowCount()):
+                row_data = []
+                row_is_empty = True  # Assume the row is empty until we find data
+                for column in range(self.table.columnCount()):
+                    if column == 2 or column == 4:  # Cloze column with QTextEdit
+                        text_edit_widget = self.table.cellWidget(row, column)
+                        text = text_edit_widget.toPlainText()
+                        # Replace line breaks with a placeholder
+                        text = text.replace('\n', '<br>')
+                    else:  # Other columns with QTableWidgetItem
+                        cell_item = self.table.item(row, column)
+                        text = cell_item.text() if cell_item else ''
+                    row_data.append(text)
+                    if text.strip():  # If there's any text, mark the row as non-empty
+                        row_is_empty = False
+                # Write the tab-delimited row to the file only if the row is not empty
+                if not row_is_empty:
+                    file.write('\t'.join(row_data) + '\n')
+
+        # Show a message box that the data was exported successfully
+        # QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
 
 def main():
     app = QApplication(sys.argv)
