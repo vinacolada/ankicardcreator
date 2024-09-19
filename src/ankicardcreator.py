@@ -78,7 +78,8 @@ class CardTable(QMainWindow):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.auto_export_data)
-        self.timer.start(1000*300)
+        self.timer.start(1000*180)
+        print(str(self.timer))
 
     def update_nomenclature(self, text):
         self.nomenclature = text
@@ -331,9 +332,12 @@ class CardTable(QMainWindow):
         QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
 
     def auto_export_data(self):
-        # Open a file dialog to specify the path and file name for export
-        aedir = "autoexport/data.txt"
-        path = pathlib.Path(__file__).parent / aedir
+        aedir = 'backup/bak.txt'
+        bakpath = pathlib.Path(__file__).parent / aedir
+        pathlib.Path(bakpath).parents[0].mkdir(parents=True, exist_ok=True)
+        path = bakpath
+        print(path)
+
         if not path:  # If no path is provided, return without doing anything
             return
 
@@ -359,6 +363,7 @@ class CardTable(QMainWindow):
 
         # Show a message box that the data was exported successfully
         # QMessageBox.information(self, "Export Successful", f"Data exported to '{path}'")
+        self.setWindowTitle('Anki Card Creator - Backup: %s' % path)
 
 def main():
     app = QApplication(sys.argv)
